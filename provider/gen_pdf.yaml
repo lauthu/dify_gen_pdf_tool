@@ -1,0 +1,17 @@
+identity:
+  author: lauthu
+  name: gen_pdf
+  label:
+    en_US: gen_pdf
+    zh_Hans: gen_pdf
+    pt_BR: gen_pdf
+  description:
+    en_US: generate pdf
+    zh_Hans: generate pdf
+    pt_BR: generate pdf
+  icon: icon.svg
+tools:
+  - tools/gen_pdf.yaml
+extra:
+  python:
+    source: provider/gen_pdf.py

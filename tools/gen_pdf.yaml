@@ -1,0 +1,30 @@
+identity:
+  name: gen_pdf
+  author: lauthu
+  label:
+    en_US: gen_pdf
+    zh_Hans: gen_pdf
+    pt_BR: gen_pdf
+description:
+  human:
+    en_US: generate pdf
+    zh_Hans: generate pdf
+    pt_BR: generate pdf
+  llm: generate pdf
+parameters:
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: Query string
+      zh_Hans: 查询语句
+      pt_BR: Query string
+    human_description:
+      en_US: generate pdf
+      zh_Hans: generate pdf
+      pt_BR: generate pdf
+    llm_description: generate pdf
+    form: llm
+extra:
+  python:
+    source: tools/gen_pdf.py

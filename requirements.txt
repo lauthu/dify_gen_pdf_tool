@@ -1,0 +1,4 @@
+dify_plugin
+weasyprint
+markdown
+beautifulsoup4

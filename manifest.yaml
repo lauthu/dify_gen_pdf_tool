@@ -1,0 +1,33 @@
+version: 0.0.1
+type: plugin
+author: lauthu
+name: gen_pdf
+label:
+  en_US: gen_pdf
+  ja_JP: gen_pdf
+  zh_Hans: gen_pdf
+  pt_BR: gen_pdf
+description:
+  en_US: generate pdf
+  ja_JP: generate pdf
+  zh_Hans: generate pdf
+  pt_BR: generate pdf
+icon: icon.svg
+resource:
+  memory: 268435456
+  permission: {}
+plugins:
+  tools:
+    - provider/gen_pdf.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+created_at: 2025-03-09T09:32:37.446329686Z
+privacy: PRIVACY.md
+verified: false
