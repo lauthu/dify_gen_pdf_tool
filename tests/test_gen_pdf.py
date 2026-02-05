@@ -1,11 +1,87 @@
-import os
-import pytest
-from tools.gen_pdf import markdown_to_pdf
+import base64
+from unittest.mock import MagicMock
+from tools.gen_pdf import GeneratePDFTool
 
-def test_markdown_to_pdf(tmp_path):
-    # Create a test markdown file with Chinese content
+
+def test_generate_pdf_with_markdown():
+    """Test PDF generation from markdown content"""
+    tool = GeneratePDFTool()
+
+    # Test markdown content
+    md_content = """# Test Title
+
+## Subtitle
+
+This is a test paragraph with **bold** and *italic* text.
+
+* List item 1
+* List item 2
+
+1. Numbered item 1
+2. Numbered item 2
+
+> This is a blockquote
+
+---
+
+[Link text](https://example.com)
+"""
+
+    tool_parameters = {'data': md_content}
+
+    # Get the result from the generator
+    results = list(tool._invoke(tool_parameters))
+
+    # Should return exactly one message
+    assert len(results) == 1
+
+    # Check that it's a blob message with PDF mime type
+    message = results[0]
+    assert hasattr(message, 'blob')
+    assert message.meta.get('mime_type') == 'application/pdf'
+
+    # Verify the blob is valid base64
+    try:
+        pdf_data = base64.b64decode(message.blob)
+        assert len(pdf_data) > 0
+        # PDF files start with %PDF
+        assert pdf_data.startswith(b'%PDF')
+    except Exception as e:
+        assert False, f"Invalid base64 or PDF data: {e}"
+
+
+def test_generate_pdf_empty_data():
+    """Test handling of empty markdown content"""
+    tool = GeneratePDFTool()
+    tool_parameters = {'data': ''}
+
+    results = list(tool._invoke(tool_parameters))
+
+    assert len(results) == 1
+    message = results[0]
+    assert hasattr(message, 'text')
+    assert "No data provided" in message.text
+
+
+def test_generate_pdf_no_data_parameter():
+    """Test handling of missing data parameter"""
+    tool = GeneratePDFTool()
+    tool_parameters = {}
+
+    results = list(tool._invoke(tool_parameters))
+
+    assert len(results) == 1
+    message = results[0]
+    assert hasattr(message, 'text')
+    assert "No data provided" in message.text
+
+
+def test_generate_pdf_with_chinese_content():
+    """Test PDF generation with Chinese characters"""
+    tool = GeneratePDFTool()
+
     md_content = """# 测试标题
-    
+
 ## 副标题
 
 这是一段中文测试文本。
@@ -13,57 +89,70 @@ def test_markdown_to_pdf(tmp_path):
 * 列表项 1
 * 列表项 2
 
-1. 编号列表 1
-2. 编号列表 2
-
-> 这是一段引用文字
-
----
-
 **粗体文字** 和 *斜体文字*
-
-[链接文字](https://example.com)
 """
-    
-    input_file = tmp_path / "test.md"
-    output_file = tmp_path / "test.pdf"
-    
-    # Write test markdown content
-    with open(input_file, 'w', encoding='utf-8') as f:
-        f.write(md_content)
-    
-    # Convert to PDF
-    markdown_to_pdf(str(input_file), str(output_file))
-    
-    # Check if PDF was created and has size greater than 0
-    assert output_file.exists()
-    assert output_file.stat().st_size > 0
 
-def test_markdown_to_pdf_with_custom_css(tmp_path):
-    # Create a test CSS file
-    css_content = """
-    body { font-family: Arial, sans-serif; }
-    h1 { color: blue; }
-    """
-    
-    css_file = tmp_path / "custom.css"
-    with open(css_file, 'w', encoding='utf-8') as f:
-        f.write(css_content)
-    
-    # Create a simple markdown file
-    md_content = "# Test Heading\n\nTest content"
-    input_file = tmp_path / "test.md"
-    with open(input_file, 'w', encoding='utf-8') as f:
-        f.write(md_content)
-    
-    output_file = tmp_path / "test_custom.pdf"
-    
-    # Convert to PDF with custom CSS
-    markdown_to_pdf(str(input_file), str(output_file), css_content)
-    
-    assert output_file.exists()
-    assert output_file.stat().st_size > 0
+    tool_parameters = {'data': md_content}
+    results = list(tool._invoke(tool_parameters))
 
-def test_markdown_to_pdf_file_not_found():
-    with pytest.raises(FileNotFoundError):
-        markdown_to_pdf("nonexistent.md", "output.pdf")
+    assert len(results) == 1
+    message = results[0]
+    assert hasattr(message, 'blob')
+    assert message.meta.get('mime_type') == 'application/pdf'
+
+
+def test_generate_pdf_with_table():
+    """Test PDF generation with markdown table"""
+    tool = GeneratePDFTool()
+
+    md_content = """# Table Test
+
+| Column 1 | Column 2 | Column 3 |
+|----------|----------|----------|
+| Data 1   | Data 2   | Data 3   |
+| Data 4   | Data 5   | Data 6   |
+"""
+
+    tool_parameters = {'data': md_content}
+    results = list(tool._invoke(tool_parameters))
+
+    assert len(results) == 1
+    message = results[0]
+    assert hasattr(message, 'blob')
+    assert message.meta.get('mime_type') == 'application/pdf'
+
+
+def test_generate_pdf_with_code_block():
+    """Test PDF generation with code blocks"""
+    tool = GeneratePDFTool()
+
+    md_content = """# Code Example
+
+```python
+def hello():
+    print("Hello, World!")
+```
+
+Inline `code` example.
+"""
+
+    tool_parameters = {'data': md_content}
+    results = list(tool._invoke(tool_parameters))
+
+    assert len(results) == 1
+    message = results[0]
+    assert hasattr(message, 'blob')
+    assert message.meta.get('mime_type') == 'application/pdf'
+
+
+def test_generate_pdf_invalid_data_type():
+    """Test handling of invalid data type"""
+    tool = GeneratePDFTool()
+    tool_parameters = {'data': 123}  # Not a string
+
+    results = list(tool._invoke(tool_parameters))
+
+    assert len(results) == 1
+    message = results[0]
+    assert hasattr(message, 'text')
+    assert "Invalid input" in message.text

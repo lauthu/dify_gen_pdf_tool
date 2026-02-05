@@ -12,18 +12,18 @@ description:
     pt_BR: generate pdf
   llm: generate pdf
 parameters:
-  - name: query
+  - name: data
     type: string
     required: true
     label:
-      en_US: Query string
-      zh_Hans: 查询语句
-      pt_BR: Query string
+      en_US: Markdown Content
+      zh_Hans: Markdown 内容
+      pt_BR: Conteúdo Markdown
     human_description:
-      en_US: generate pdf
-      zh_Hans: generate pdf
-      pt_BR: generate pdf
-    llm_description: generate pdf
+      en_US: Markdown content to convert to PDF
+      zh_Hans: 要转换为PDF的Markdown内容
+      pt_BR: Conteúdo Markdown para converter em PDF
+    llm_description: Markdown content that will be converted to PDF format
     form: llm
 extra:
   python:
