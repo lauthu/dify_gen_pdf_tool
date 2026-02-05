@@ -6,9 +6,16 @@ from dify_plugin.errors.tool import ToolProviderCredentialValidationError
 
 class GenPdfProvider(ToolProvider):
     def _validate_credentials(self, credentials: dict[str, Any]) -> None:
-        try:
-            """
-            IMPLEMENT YOUR VALIDATION HERE
-            """
-        except Exception as e:
-            raise ToolProviderCredentialValidationError(str(e))
+        """
+        Validate provider credentials.
+
+        This tool does not require any credentials, so validation always passes.
+
+        Args:
+            credentials: Dictionary of credentials (not used)
+
+        Raises:
+            ToolProviderCredentialValidationError: If validation fails
+        """
+        # No credentials required for PDF generation
+        pass

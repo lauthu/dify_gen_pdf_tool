@@ -99,49 +99,61 @@ th {
 class GeneratePDFTool(Tool):
 
     def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage]:
-        try:
+        """
+        Convert Markdown content to PDF.
 
+        Args:
+            tool_parameters: Dictionary containing 'data' key with markdown content
+
+        Yields:
+            ToolInvokeMessage: PDF blob message or error text message
+        """
+        try:
             data = tool_parameters.get('data', '')
-            
+
             if not data:
-                return self.create_text_message("No data provided.")
-            
+                yield self.create_text_message("No data provided.")
+                return
+
+            # Validate input is a string
+            if not isinstance(data, str):
+                yield self.create_text_message("Invalid input: data must be a string.")
+                return
+
             # Convert markdown to HTML
             html_content = markdown.markdown(
                 data,
                 extensions=[
-                    'tables', 
-                    'fenced_code', 
+                    'tables',
+                    'fenced_code',
                     'footnotes',
-                    'markdown.extensions.sane_lists',  # Add sane_lists extension for proper nested list handling
-                    'markdown.extensions.nl2br'        # Convert newlines to <br> tags for better spacing
+                    'markdown.extensions.sane_lists',
+                    'markdown.extensions.nl2br'
                 ]
             )
-    #       import pdb; pdb.set_trace();
-            # Wrap HTML content
-            html_doc = f'''
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8">
-                <style>
-                    {DEFAULT_CSS}
-                </style>
-            </head>
-            <body>
-                {html_content}
-            </body>
-            </html>
-            '''
+
+            # Wrap HTML content with proper document structure
+            html_doc = f'''<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        {DEFAULT_CSS}
+    </style>
+</head>
+<body>
+    {html_content}
+</body>
+</html>'''
 
             # Convert HTML to PDF and get the PDF as bytes
             pdf_bytes = HTML(string=html_doc).write_pdf()
-            
+
             # Convert PDF bytes to base64 string
             pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
-            
-            # Return the PDF as a blob message
+
+            # Yield the PDF as a blob message
             yield self.create_blob_message(pdf_base64, meta={"mime_type": "application/pdf"})
-       
+
         except Exception as e:
-            return self.create_text_message("Error converting markdown to PDF: {str(e)}")
+            yield self.create_text_message(f"Error converting markdown to PDF: {str(e)}")
