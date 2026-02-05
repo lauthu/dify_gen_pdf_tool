@@ -102,10 +102,11 @@ class GeneratePDFTool(Tool):
         try:
 
             data = tool_parameters.get('data', '')
-            
+
             if not data:
-                return self.create_text_message("No data provided.")
-            
+                yield self.create_text_message("No data provided.")
+                return
+
             # Convert markdown to HTML
             html_content = markdown.markdown(
                 data,
@@ -144,4 +145,4 @@ class GeneratePDFTool(Tool):
             yield self.create_blob_message(pdf_base64, meta={"mime_type": "application/pdf"})
        
         except Exception as e:
-            return self.create_text_message("Error converting markdown to PDF: {str(e)}")
+            yield self.create_text_message(f"Error converting markdown to PDF: {str(e)}")

@@ -1,4 +1,4 @@
-dify_plugin
+dify_plugin>=0.7.1
 weasyprint
 markdown
 beautifulsoup4
